@@ -1,0 +1,262 @@
+export const sampleVideos = [
+  {
+    id: '1',
+    title: 'Introduction to React Hooks',
+    description: 'Learn the fundamentals of React Hooks including useState, useEffect, and custom hooks.',
+    duration: '15:30',
+    thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=250&fit=crop&crop=center',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    category: 'React',
+    level: 'Beginner',
+    instructor: 'Sarah Johnson',
+    summary: 'In this video, you will learn about React Hooks, a powerful feature that allows you to use state and other React features without writing a class component.'
+  },
+  {
+    id: '2',
+    title: 'Advanced JavaScript Concepts',
+    description: 'Deep dive into closures, prototypes, and asynchronous programming in JavaScript.',
+    duration: '22:45',
+    thumbnail: 'https://images.unsplash.com/photo-1627398242454-45a1465c2479?w=400&h=250&fit=crop&crop=center',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    category: 'JavaScript',
+    level: 'Advanced',
+    instructor: 'Mike Chen',
+    summary: 'Explore advanced JavaScript concepts that will help you write more efficient and maintainable code.'
+  },
+  {
+    id: '3',
+    title: 'CSS Grid Layout Mastery',
+    description: 'Master CSS Grid to create complex, responsive layouts with ease.',
+    duration: '18:20',
+    thumbnail: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=250&fit=crop&crop=center',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    category: 'CSS',
+    level: 'Intermediate',
+    instructor: 'Emily Rodriguez',
+    summary: 'CSS Grid is a powerful layout system that allows you to create two-dimensional layouts with rows and columns.'
+  },
+  {
+    id: '4',
+    title: 'Node.js Express Framework',
+    description: 'Build robust web applications using Node.js and the Express framework.',
+    duration: '25:10',
+    thumbnail: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=250&fit=crop&crop=center',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+    category: 'Node.js',
+    level: 'Intermediate',
+    instructor: 'David Kim',
+    summary: 'Learn how to create server-side applications using Node.js and Express, including routing, middleware, and database integration.'
+  },
+  {
+    id: '5',
+    title: 'Python Data Analysis with Pandas',
+    description: 'Analyze and manipulate data using Python\'s powerful Pandas library.',
+    duration: '19:55',
+    thumbnail: 'https://images.unsplash.com/photo-1526379879527-8559ecfcaec0?w=400&h=250&fit=crop&crop=center',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
+    category: 'Python',
+    level: 'Intermediate',
+    instructor: 'Lisa Wang',
+    summary: 'Discover how to use Pandas for data cleaning, transformation, and analysis in Python.'
+  },
+  {
+    id: '6',
+    title: 'Database Design Fundamentals',
+    description: 'Learn the principles of good database design and normalization.',
+    duration: '21:30',
+    thumbnail: 'https://images.unsplash.com/photo-1544383835-bda2bc66a55d?w=400&h=250&fit=crop&crop=center',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+    category: 'Database',
+    level: 'Beginner',
+    instructor: 'Robert Thompson',
+    summary: 'Understand the fundamentals of database design, including entity-relationship modeling and normalization principles.'
+  },
+  {
+    id: '7',
+    title: 'Machine Learning with Python',
+    description: 'Introduction to machine learning algorithms and implementation using Python.',
+    duration: '28:15',
+    thumbnail: 'https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=400&h=250&fit=crop&crop=center',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    category: 'Python',
+    level: 'Advanced',
+    instructor: 'Dr. Alex Kumar',
+    summary: 'Learn the basics of machine learning including supervised and unsupervised learning techniques.'
+  },
+  {
+    id: '8',
+    title: 'React Native Mobile Development',
+    description: 'Build cross-platform mobile applications using React Native.',
+    duration: '32:40',
+    thumbnail: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400&h=250&fit=crop&crop=center',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    category: 'React',
+    level: 'Advanced',
+    instructor: 'Maria Santos',
+    summary: 'Create native mobile apps for iOS and Android using React Native framework.'
+  },
+  {
+    id: '9',
+    title: 'Web Security Best Practices',
+    description: 'Learn essential web security principles and how to protect your applications.',
+    duration: '24:55',
+    thumbnail: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=250&fit=crop&crop=center',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    category: 'JavaScript',
+    level: 'Intermediate',
+    instructor: 'James Wilson',
+    summary: 'Understand common security vulnerabilities and learn how to secure your web applications.'
+  },
+  {
+    id: '10',
+    title: 'Docker Containerization',
+    description: 'Master containerization with Docker for efficient application deployment.',
+    duration: '26:30',
+    thumbnail: 'https://images.unsplash.com/photo-1605745341112-85968b19335b?w=400&h=250&fit=crop&crop=center',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+    category: 'Node.js',
+    level: 'Advanced',
+    instructor: 'Carlos Rodriguez',
+    summary: 'Learn how to containerize applications using Docker and manage container orchestration.'
+  },
+  {
+    id: '11',
+    title: 'GraphQL API Development',
+    description: 'Build efficient APIs using GraphQL query language.',
+    duration: '30:20',
+    thumbnail: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=250&fit=crop&crop=center',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
+    category: 'Node.js',
+    level: 'Advanced',
+    instructor: 'Anna Chen',
+    summary: 'Learn GraphQL fundamentals and how to build flexible, efficient APIs.'
+  },
+  {
+    id: '12',
+    title: 'CSS Animations and Transitions',
+    description: 'Create engaging user interfaces with CSS animations and transitions.',
+    duration: '16:45',
+    thumbnail: 'https://images.unsplash.com/photo-1561736778-92e52a7769ef?w=400&h=250&fit=crop&crop=center',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+    category: 'CSS',
+    level: 'Beginner',
+    instructor: 'Sophie Martin',
+    summary: 'Add life to your web pages with smooth animations and interactive transitions.'
+  },
+  {
+    id: '13',
+    title: 'TypeScript Fundamentals',
+    description: 'Learn TypeScript to write safer and more maintainable JavaScript code.',
+    duration: '27:15',
+    thumbnail: 'https://images.unsplash.com/photo-1516116216624-53e697fedbea?w=400&h=250&fit=crop&crop=center',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    category: 'JavaScript',
+    level: 'Intermediate',
+    instructor: 'Tom Anderson',
+    summary: 'Master TypeScript type system, interfaces, and advanced features for robust web development.'
+  },
+  {
+    id: '14',
+    title: 'Vue.js Complete Guide',
+    description: 'Build modern web applications with Vue.js framework.',
+    duration: '29:30',
+    thumbnail: 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=250&fit=crop&crop=center',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    category: 'JavaScript',
+    level: 'Beginner',
+    instructor: 'Elena Rodriguez',
+    summary: 'Learn Vue.js components, directives, and state management with Vuex.'
+  },
+  {
+    id: '15',
+    title: 'MongoDB Database Management',
+    description: 'Master NoSQL database design and operations with MongoDB.',
+    duration: '23:45',
+    thumbnail: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=400&h=250&fit=crop&crop=center',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+    category: 'Database',
+    level: 'Intermediate',
+    instructor: 'Raj Patel',
+    summary: 'Learn MongoDB CRUD operations, indexing, aggregation, and data modeling.'
+  },
+  {
+    id: '16',
+    title: 'Git Version Control Mastery',
+    description: 'Master Git workflows, branching strategies, and collaboration techniques.',
+    duration: '20:10',
+    thumbnail: 'https://images.unsplash.com/photo-1556075798-4825dfaaf498?w=400&h=250&fit=crop&crop=center',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+    category: 'Programming',
+    level: 'Beginner',
+    instructor: 'Sarah Kim',
+    summary: 'Learn Git fundamentals, advanced workflows, and team collaboration best practices.'
+  },
+  {
+    id: '17',
+    title: 'REST API Design Principles',
+    description: 'Design and build scalable RESTful APIs following best practices.',
+    duration: '25:20',
+    thumbnail: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?w=400&h=250&fit=crop&crop=center',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
+    category: 'Node.js',
+    level: 'Intermediate',
+    instructor: 'Michael Brown',
+    summary: 'Learn REST API design patterns, authentication, and documentation strategies.'
+  },
+  {
+    id: '18',
+    title: 'AWS Cloud Fundamentals',
+    description: 'Introduction to Amazon Web Services and cloud computing basics.',
+    duration: '31:50',
+    thumbnail: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=400&h=250&fit=crop&crop=center',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+    category: 'Cloud',
+    level: 'Beginner',
+    instructor: 'Jennifer Wu',
+    summary: 'Explore AWS services including EC2, S3, RDS, and deployment strategies.'
+  },
+  {
+    id: '19',
+    title: 'Advanced React Patterns',
+    description: 'Learn advanced React patterns like render props, HOCs, and compound components.',
+    duration: '26:35',
+    thumbnail: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=400&h=250&fit=crop&crop=center',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
+    category: 'React',
+    level: 'Advanced',
+    instructor: 'Alex Thompson',
+    summary: 'Master advanced React patterns for building scalable and maintainable applications.'
+  },
+  {
+    id: '20',
+    title: 'DevOps with Jenkins',
+    description: 'Automate your development workflow with Jenkins CI/CD pipelines.',
+    duration: '28:40',
+    thumbnail: 'https://images.unsplash.com/photo-1518432031352-d6fc5c10da5a?w=400&h=250&fit=crop&crop=center',
+    videoUrl: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
+    category: 'DevOps',
+    level: 'Intermediate',
+    instructor: 'Carlos Martinez',
+    summary: 'Learn Jenkins setup, pipeline creation, and automated testing integration.'
+  }
+];
+
+export const categories = [
+  'All',
+  'React',
+  'JavaScript',
+  'CSS',
+  'Node.js',
+  'Python',
+  'Database',
+  'Programming',
+  'Cloud',
+  'DevOps'
+];
+
+export const levels = [
+  'All Levels',
+  'Beginner',
+  'Intermediate',
+  'Advanced'
+];
