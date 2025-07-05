@@ -77,12 +77,14 @@ npm run preview
 ```
 EasyPathshala/
 ├── public/
-│   └── vite.svg
+│   ├── vite.svg
+│   └── assets/
+│       ├── react.svg
+│       └── images/
+│           ├── FounderVinit.jpeg
+│           └── logo.png
 ├── src/
 │   ├── assets/
-│   │   ├── images/
-│   │   │   ├── FounderVinit.jpeg
-│   │   │   └── logo.png
 │   │   └── react.svg
 │   ├── components/
 │   │   ├── EasyPathshalaLogo.jsx
