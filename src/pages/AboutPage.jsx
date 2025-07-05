@@ -36,7 +36,7 @@ const AboutPage = () => {
     {
       name: 'Vinit Choudhary',
       role: 'Founder & Head Guru',
-      image: './src/assets/images/FounderVinit.jpeg',
+      image: '/assets/images/FounderVinit.jpeg',
       bio: 'Web Developer passionate about making traditional learning accessible to everyone.',
     },
     {
