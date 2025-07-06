@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import ReactPlayer from 'react-player';
-import { ArrowLeft, User, Clock, BookOpen, Tag, Star, Award, Share2, Heart } from 'lucide-react';
+import { ArrowLeft, User, Clock, BookOpen, Tag, Star, Award, Share2, Heart, Lock, LogIn } from 'lucide-react';
 import { sampleVideos } from '../data/videos';
+import { useAuth } from '../context/AuthContext';
 
 const VideoPlayerPage = () => {
   const { videoId } = useParams();
+  const navigate = useNavigate();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [video, setVideo] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [playedSeconds, setPlayedSeconds] = useState(0);
@@ -30,6 +33,91 @@ const VideoPlayerPage = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white flex items-center justify-center">
+        <div className="bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/10">
+          <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-white/80 text-center">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show authentication required message if user is not logged in
+  if (!isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
+        <div className="max-w-7xl mx-auto px-4 py-20">
+          <div className="text-center">
+            <div className="bg-white/5 backdrop-blur-md rounded-2xl p-12 border border-white/10 max-w-lg mx-auto">
+              <div className="w-20 h-20 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Lock size={32} className="text-white" />
+              </div>
+              <h2 className="text-3xl font-bold mb-4 text-white">Access Restricted</h2>
+              <p className="text-white/70 mb-6 leading-relaxed">
+                This video content is available only to registered members of our pathshala. 
+                Please log in to continue your learning journey.
+              </p>
+              {video && (
+                <div className="bg-white/5 rounded-xl p-4 mb-6">
+                  <div className="flex items-center gap-4">
+                    <img 
+                      src={video.thumbnail} 
+                      alt={video.title}
+                      className="w-16 h-12 object-cover rounded-lg"
+                    />
+                    <div className="text-left">
+                      <h3 className="text-white font-semibold text-sm line-clamp-1">{video.title}</h3>
+                      <p className="text-white/60 text-xs">by {video.instructor}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs text-white/50">{video.duration}</span>
+                        <span className={`px-2 py-0.5 rounded text-xs ${
+                          video.level === 'Beginner' ? 'bg-green-500/20 text-green-400' :
+                          video.level === 'Intermediate' ? 'bg-orange-500/20 text-orange-400' : 
+                          'bg-red-500/20 text-red-400'
+                        }`}>
+                          {video.level}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <button
+                  onClick={() => navigate('/login')}
+                  className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 transform hover:scale-105"
+                >
+                  <LogIn size={20} />
+                  Login to Watch
+                </button>
+                <button
+                  onClick={() => navigate('/register')}
+                  className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-white px-6 py-3 rounded-xl font-bold hover:bg-white/20 transition-all duration-300"
+                >
+                  <User size={20} />
+                  Create Account
+                </button>
+              </div>
+              <div className="mt-6 pt-6 border-t border-white/10">
+                <Link 
+                  to="/courses" 
+                  className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
+                >
+                  <ArrowLeft size={18} />
+                  Back to Courses
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show video not found message
   if (!video) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">

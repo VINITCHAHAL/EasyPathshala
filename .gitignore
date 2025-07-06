@@ -23,3 +23,6 @@ dist-ssr
 *.sln
 *.sw?
 .env
+wget-log
+wget-log.1
+wget-log.2
