@@ -17,6 +17,7 @@ router.post('/register', [
     .matches(/^[a-zA-Z0-9_]+$/)
     .withMessage('Username must be 3-20 characters and contain only letters, numbers, and underscores'),
   body('email')
+    .optional()
     .isEmail()
     .normalizeEmail()
     .withMessage('Please provide a valid email'),
@@ -483,6 +484,54 @@ router.get('/me', protect, async (req, res) => {
   }
 });
 
+router.post('/refresh', [
+  body('refreshToken')
+    .notEmpty()
+    .withMessage('Refresh token is required')
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors: errors.array()
+      });
+    }
+
+    const { refreshToken } = req.body;
+
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET);
+    
+    const user = await User.findById(decoded.userId);
+    
+    if (!user || !user.isActive) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid refresh token'
+      });
+    }
+
+    const newToken = generateToken(user._id);
+    const newRefreshToken = generateRefreshToken(user._id);
+
+    res.json({
+      success: true,
+      message: 'Token refreshed successfully',
+      data: {
+        token: newToken,
+        refreshToken: newRefreshToken
+      }
+    });
+
+  } catch (error) {
+    res.status(401).json({
+      success: false,
+      message: 'Invalid refresh token'
+    });
+  }
+});
+
 router.post('/refresh-token', [
   body('refreshToken')
     .notEmpty()
@@ -726,68 +775,9 @@ router.post('/send-login-otp', async (req, res) => {
   }
 });
 
-router.post('/verify-login-otp', async (req, res) => {
-  try {
-    const { phone, otp } = req.body;
-    
-    if (!phone || !otp) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Phone and OTP are required' 
-      });
-    }
-
-    const storedOTP = global.loginOTPs?.[phone];
-
-    if (!storedOTP || storedOTP.otp !== otp || Date.now() > storedOTP.expiresAt) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Invalid or expired OTP' 
-      });
-    }
-
-    const user = await User.findOne({ phone });
-    if (!user) {
-      return res.status(404).json({ 
-        success: false, 
-        message: 'User not found' 
-      });
-    }
-
-    user.lastLogin = new Date();
-    user.isPhoneVerified = true;
-    await user.save();
-
-    const token = generateToken(user._id);
-    const refreshToken = generateRefreshToken(user._id);
-
-    const userResponse = user.toObject();
-    delete userResponse.password;
-
-    delete global.loginOTPs[phone];
-
-    res.json({ 
-      success: true, 
-      message: 'Login successful', 
-      data: {
-        user: userResponse,
-        token,
-        refreshToken
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Login failed',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
-  }
-});
-
 router.post('/send-email-otp', async (req, res) => {
   try {
     const { email } = req.body;
-    
     if (!email) {
       return res.status(400).json({ 
         success: false, 
@@ -804,12 +794,21 @@ router.post('/send-email-otp', async (req, res) => {
     }
 
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    
     global.emailOTPs = global.emailOTPs || {};
     global.emailOTPs[email] = { otp, expiresAt: Date.now() + 300000 };
-    
-    console.log(`📧 Email OTP for ${email}: ${otp}`);
-    
+
+    // Send OTP email using nodemailer utility
+    const sendEmailOtp = require('../utils/sendEmailOtp');
+    try {
+      await sendEmailOtp(email, otp);
+    } catch (err) {
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send OTP email',
+        error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+      });
+    }
+
     res.json({ 
       success: true, 
       message: 'OTP sent successfully to your email', 
@@ -829,8 +828,13 @@ router.post('/send-email-otp', async (req, res) => {
 
 router.post('/verify-email-otp', async (req, res) => {
   try {
-    const { email, otp, fullName, username, password } = req.body;
-    
+    // Normalize and trim email and OTP for comparison
+    let { email, otp, fullName, username, password } = req.body;
+    email = (email || '').trim().toLowerCase();
+    otp = (otp || '').toString().trim();
+    // Debug log: show received and stored OTP
+    console.log('🔍 [OTP DEBUG] Email:', email, 'Received OTP:', otp, 'Stored OTP:', global.emailOTPs?.[email]?.otp);
+
     if (!email || !otp || !fullName || !password) {
       return res.status(400).json({ 
         success: false, 
@@ -847,7 +851,7 @@ router.post('/verify-email-otp', async (req, res) => {
       });
     }
 
-    if (storedOTP.otp !== otp) {
+    if ((storedOTP.otp || '').toString().trim() !== otp) {
       return res.status(400).json({ 
         success: false, 
         message: 'Invalid OTP. Please try again.' 
