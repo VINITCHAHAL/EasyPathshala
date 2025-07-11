@@ -828,12 +828,10 @@ router.post('/send-email-otp', async (req, res) => {
 
 router.post('/verify-email-otp', async (req, res) => {
   try {
-    // Normalize and trim email and OTP for comparison
+    
     let { email, otp, fullName, username, password } = req.body;
     email = (email || '').trim().toLowerCase();
     otp = (otp || '').toString().trim();
-    // Debug log: show received and stored OTP
-    console.log('🔍 [OTP DEBUG] Email:', email, 'Received OTP:', otp, 'Stored OTP:', global.emailOTPs?.[email]?.otp);
 
     if (!email || !otp || !fullName || !password) {
       return res.status(400).json({ 
