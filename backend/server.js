@@ -21,8 +21,6 @@ app.use(helmet({
 
 }));
 
-
-
 const limiter = rateLimit({
 
   windowMs: 15 * 60 * 1000,
@@ -32,10 +30,15 @@ const limiter = rateLimit({
 });
 
 app.use('/api/', limiter);
-app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173',
-  credentials: true
-}));
+
+const corsOptions = {
+  origin: 'https://easy-pathshala.vercel.app',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+};
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
 
 
 app.use(express.json({ limit: '10mb' }));
