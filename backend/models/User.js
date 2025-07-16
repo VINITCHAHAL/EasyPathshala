@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
+
 const userSchema = new mongoose.Schema({
   fullName: {
     type: String,
@@ -20,59 +21,26 @@ const userSchema = new mongoose.Schema({
   },
   email: {
     type: String,
+    required: [true, 'Email is required'],
     unique: true,
-    sparse: true, // ✅ Allow null values while maintaining uniqueness
-    lowercase: true,
     trim: true,
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email'],
-    required: false
-  },
-  phone: {
-    type: String,
-    unique: true,
-    sparse: true, // ✅ Allow null values while maintaining uniqueness
-    match: [/^\d{10}$/, 'Phone number must be 10 digits']
-    // ✅ REMOVED: required validation - phone is now optional
+    lowercase: true,
+    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please enter a valid email']
   },
   password: {
     type: String,
     required: [true, 'Password is required'],
-    minlength: [8, 'Password must be at least 8 characters long'],
-    select: false 
+    minlength: [8, 'Password must be at least 8 characters long']
   },
-  
   avatar: {
     type: String,
-    default: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face'
+    default: null
   },
-
   bio: {
     type: String,
-    maxlength: [200, 'Bio cannot exceed 200 characters']
+    default: null
   },
-  
-  isEmailVerified: {
-    type: Boolean,
-    default: false
-  },
-  isPhoneVerified: {
-    type: Boolean,
-    default: false
-  },
-  emailVerificationToken: String,
-  phoneVerificationOTP: String,
-  otpExpiry: Date,
-  
-  isActive: {
-    type: Boolean,
-    default: true
-  },
-  role: {
-    type: String,
-    enum: ['student', 'instructor', 'admin'],
-    default: 'student'
-  },
-    coursesEnrolled: [{
+  coursesEnrolled: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Course'
   }],
@@ -80,25 +48,26 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Course'
   }],
-  certificatesEarned: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Certificate'
-  }],
-  totalLearningTime: {
-    type: Number,
-    default: 0 
+  isActive: {
+    type: Boolean,
+    default: true
   },
-  
-  lastLogin: Date,
-  passwordResetToken: String,
-  passwordResetExpiry: Date,
-  loginAttempts: {
+  lastLogin: {
+    type: Date,
+    default: Date.now
+  },
+  role: {
+    type: String,
+    enum: ['student', 'instructor', 'admin'],
+    default: 'student'
+  },
+  failedLoginAttempts: {
     type: Number,
     default: 0
   },
   lockUntil: Date
 }, {
-  timestamps: true, 
+  timestamps: true,
   toJSON: { virtuals: true },
   toObject: { virtuals: true }
 });
@@ -121,46 +90,5 @@ userSchema.pre('save', async function(next) {
 userSchema.methods.comparePassword = async function(candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
-
-userSchema.methods.generateOTP = function() {
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  this.phoneVerificationOTP = otp;
-  this.otpExpiry = Date.now() + 5 * 60 * 1000;
-  return otp;
-};
-
-userSchema.methods.verifyOTP = function(otp) {
-  return this.phoneVerificationOTP === otp && Date.now() < this.otpExpiry;
-};
-
-userSchema.methods.incLoginAttempts = function() {
-  if (this.lockUntil && this.lockUntil < Date.now()) {
-    return this.updateOne({
-      $unset: { lockUntil: 1 },
-      $set: { loginAttempts: 1 }
-    });
-  }
-  
-  const updates = { $inc: { loginAttempts: 1 } };
-  
-  if (this.loginAttempts + 1 >= 5 && !this.isLocked) {
-    updates.$set = { lockUntil: Date.now() + 2 * 60 * 60 * 1000 };
-  }
-  
-  return this.updateOne(updates);
-};
-
-userSchema.methods.resetLoginAttempts = function() {
-  return this.updateOne({
-    $unset: { loginAttempts: 1, lockUntil: 1 }
-  });
-};
-
-userSchema.index({ email: 1 });
-userSchema.index({ username: 1 });
-userSchema.index({ phone: 1 });
-userSchema.index({ createdAt: -1 });
-userSchema.index({ isActive: 1 });
-userSchema.index({ lastLogin: 1 });
 
 module.exports = mongoose.model('User', userSchema);

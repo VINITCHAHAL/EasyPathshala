@@ -163,11 +163,6 @@ router.get('/:identifier', optionalAuth, async (req, res) => {
 
     // Filter videos based on enrollment status
     let courseResponse = course.toObject();
-    if (!enrollmentData || !enrollmentData.isEnrolled) {
-      // Show only preview videos for non-enrolled users
-      courseResponse.videos = course.videos.filter(video => video.isPreview);
-    }
-
     res.json({
       success: true,
       data: {
@@ -385,27 +380,6 @@ router.post('/:id/enroll', protect, async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Failed to enroll in course',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
-  }
-});
-
-// @desc    Get course categories
-// @route   GET /api/courses/categories
-// @access  Public
-router.get('/meta/categories', async (req, res) => {
-  try {
-    const categories = await Course.distinct('category', { isPublished: true, isActive: true });
-    
-    res.json({
-      success: true,
-      data: { categories }
-    });
-
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: 'Failed to fetch categories',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
     });
   }

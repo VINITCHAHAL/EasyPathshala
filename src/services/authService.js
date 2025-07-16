@@ -1,373 +1,123 @@
-import axios from 'axios';
+const API_URL = '/api/auth';
 
-const API_BASE_URL = import.meta.env.PROD
-  ? 'https://easypathshala.onrender.com/api'
-  : 'http://localhost:5000/api';
-
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 10000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-apiClient.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  async (error) => {
-    const originalRequest = error.config;
-    
-    if (error.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      
-      try {
-        const refreshToken = localStorage.getItem('refreshToken');
-        if (refreshToken) {
-          const response = await axios.post(`${API_BASE_URL}/auth/refresh`, {
-            refreshToken: refreshToken
-          });
-          
-          const { token } = response.data;
-          localStorage.setItem('token', token);
-          originalRequest.headers.Authorization = `Bearer ${token}`;
-          
-          return apiClient(originalRequest);
-        }
-      } catch (refreshError) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('refreshToken');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
-      }
-    }
-    
-    return Promise.reject(error);
-  }
-);
-
-const authService = {
+class AuthService {
   async register(userData) {
     try {
-      const response = await apiClient.post('/auth/register', userData);
+      const response = await fetch(`${API_URL}/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userData)
+      });
+
+      const data = await response.json();
       
-      if (response.data.success) {
-        const { token, refreshToken, user } = response.data;
-        localStorage.setItem('token', token);
-        localStorage.setItem('refreshToken', refreshToken);
-        localStorage.setItem('user', JSON.stringify(user));
-        
-        return {
-          success: true,
-          data: { token, refreshToken, user },
-          message: response.data.message
-        };
+      if (!response.ok) {
+        throw new Error(data.message || 'Registration failed');
       }
       
-      return {
-        success: false,
-        message: response.data.message || 'Registration failed'
-      };
+      if (data.success && data.data?.token && data.data?.user) {
+        localStorage.setItem('token', data.data.token);
+        localStorage.setItem('refreshToken', data.data.refreshToken);
+        localStorage.setItem('user', JSON.stringify(data.data.user));
+      } else {
+        throw new Error('Invalid response format from server');
+      }
+      
+      return data;
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Registration failed'
+        message: error.message || 'An error occurred during registration'
       };
     }
-  },
+  }
 
   async login(credentials) {
     try {
-      const loginData = {
-        identifier: credentials.email || credentials.username || credentials.identifier,
-        password: credentials.password
-      };
-
-      const response = await apiClient.post('/auth/login', loginData);
+      const response = await fetch(`${API_URL}/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(credentials)
+      });
+      const data = await response.json();
       
-      if (response.data.success) {
-        const { token, refreshToken, user } = response.data.data;
-        localStorage.setItem('token', token);
-        localStorage.setItem('refreshToken', refreshToken);
-        localStorage.setItem('user', JSON.stringify(user));
-        
-        return {
-          success: true,
-          data: { token, refreshToken, user },
-          message: response.data.message
-        };
+      if (data.success) {
+        localStorage.setItem('token', data.data.token);
+        localStorage.setItem('refreshToken', data.data.refreshToken);
+        localStorage.setItem('user', JSON.stringify(data.data.user));
       }
       
-      return {
-        success: false,
-        message: response.data.message || 'Login failed'
-      };
+      return data;
     } catch (error) {
       return {
         success: false,
-        message: error.response?.data?.message || 'Login failed'
+        message: error.message
       };
     }
-  },
-
-  async sendPhoneOTP(phoneNumber) {
-    try {
-      const response = await apiClient.post('/auth/send-login-otp', {
-        phone: phoneNumber 
-      });
-      
-      return {
-        success: response.data.success,
-        message: response.data.message,
-        data: response.data.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Failed to send OTP'
-      };
-    }
-  },
-
-  async verifyPhoneOTP(phoneNumber, otp) {
-    try {
-      const response = await apiClient.post('/auth/verify-login-otp', {
-        phone: phoneNumber,
-        otp: otp
-      });
-      
-      if (response.data.success) {
-        const { token, refreshToken, user } = response.data.data;
-        localStorage.setItem('token', token);
-        localStorage.setItem('refreshToken', refreshToken);
-        localStorage.setItem('user', JSON.stringify(user));
-        
-        return {
-          success: true,
-          data: { token, refreshToken, user },
-          message: response.data.message
-        };
-      }
-      
-      return {
-        success: false,
-        message: response.data.message || 'OTP verification failed'
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.response?.data?.message || 'OTP verification failed'
-      };
-    }
-  },
-
-  async loginWithPhone(phoneNumber, otp) {
-    try {
-      const response = await apiClient.post('/auth/login-phone', {
-        phoneNumber: phoneNumber,
-        otp: otp
-      });
-      
-      if (response.data.success) {
-        const userData = response.data.data;
-        localStorage.setItem('token', userData.token);
-        localStorage.setItem('refreshToken', userData.refreshToken);
-        localStorage.setItem('user', JSON.stringify(userData.user));
-        
-        return {
-          success: true,
-          data: userData,
-          message: response.data.message
-        };
-      }
-      
-      return {
-        success: false,
-        message: response.data.message || 'Phone login failed'
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Phone login failed'
-      };
-    }
-  },
-
-  async sendRegistrationOTP(userData) {
-    try {
-      const response = await apiClient.post('/auth/send-registration-otp', userData);
-      
-      return {
-        success: response.data.success,
-        message: response.data.message,
-        data: response.data.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Failed to send OTP'
-      };
-    }
-  },
-
-  async verifyRegistrationOTP(phoneNumber, otp, userData) {
-    try {
-      const response = await apiClient.post('/auth/verify-registration-otp', {
-        phone: phoneNumber,
-        otp: otp,
-        ...userData
-      });
-      
-      if (response.data.success) {
-        const { token, refreshToken, user } = response.data;
-        localStorage.setItem('token', token);
-        localStorage.setItem('refreshToken', refreshToken);
-        localStorage.setItem('user', JSON.stringify(user));
-        
-        return {
-          success: true,
-          data: { token, refreshToken, user },
-          message: response.data.message
-        };
-      }
-      
-      return {
-        success: false,
-        message: response.data.message || 'Registration failed'
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Registration failed'
-      };
-    }
-  },
-
-  async sendEmailOTP(email) {
-    try {
-      const response = await apiClient.post('/auth/send-email-otp', {
-        email: email
-      });
-      
-      return {
-        success: response.data.success,
-        message: response.data.message,
-        data: response.data.data
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Failed to send email OTP'
-      };
-    }
-  },
-
-  async verifyEmailOTP(email, otp, userData) {
-    try {
-      const response = await apiClient.post('/auth/verify-email-otp', {
-        email: email,
-        otp: otp,
-        ...userData
-      });
-      
-      if (response.data.success) {
-        const { token, refreshToken, user } = response.data;
-        localStorage.setItem('token', token);
-        localStorage.setItem('refreshToken', refreshToken);
-        localStorage.setItem('user', JSON.stringify(user));
-        
-        return {
-          success: true,
-          data: { token, refreshToken, user },
-          message: response.data.message
-        };
-      }
-      
-      return {
-        success: false,
-        message: response.data.message || 'Email verification failed'
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Email verification failed'
-      };
-    }
-  },
-
-  async getCurrentUser() {
-    try {
-      const response = await apiClient.get('/auth/me');
-      
-      if (response.data.success) {
-        const user = response.data.data;
-        localStorage.setItem('user', JSON.stringify(user));
-        return {
-          success: true,
-          data: user
-        };
-      }
-      
-      return {
-        success: false,
-        message: response.data.message || 'Failed to get user profile'
-      };
-    } catch (error) {
-      return {
-        success: false,
-        message: error.response?.data?.message || 'Failed to get user profile'
-      };
-    }
-  },
+  }
 
   async logout() {
     try {
-      const refreshToken = localStorage.getItem('refreshToken');
-      if (refreshToken) {
-        await apiClient.post('/auth/logout', { refreshToken });
-      }
-    } catch (error) {
-      console.error('Logout API error:', error);
-    } finally {
+      const token = localStorage.getItem('token');
+      await fetch(`${API_URL}/logout`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
       localStorage.removeItem('token');
       localStorage.removeItem('refreshToken');
       localStorage.removeItem('user');
+      
+      return {
+        success: true,
+        message: 'Logged out successfully'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message
+      };
     }
-  },
+  }
 
   getCurrentUserFromStorage() {
-    try {
-      const user = localStorage.getItem('user');
-      return user ? JSON.parse(user) : null;
-    } catch (error) {
-      console.error('Error parsing user from localStorage:', error);
-      return null;
-    }
-  },
-
-  getToken() {
-    return localStorage.getItem('token');
-  },
-
-  isAuthenticated() {
-    const token = this.getToken();
-    const user = this.getCurrentUserFromStorage();
-    return !!(token && user);
+    const userStr = localStorage.getItem('user');
+    return userStr ? JSON.parse(userStr) : null;
   }
-};
 
-export default authService;
+  async refreshToken() {
+    try {
+      const refreshToken = localStorage.getItem('refreshToken');
+      if (!refreshToken) {
+        throw new Error('No refresh token available');
+      }
+
+      const response = await fetch(`${API_URL}/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ refreshToken })
+      });
+      const data = await response.json();
+
+      if (data.success) {
+        localStorage.setItem('token', data.data.token);
+        localStorage.setItem('refreshToken', data.data.refreshToken);
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      return false;
+    }
+  }
+}
+
+export default new AuthService();

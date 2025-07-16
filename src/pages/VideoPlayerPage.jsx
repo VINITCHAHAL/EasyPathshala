@@ -1,124 +1,54 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import ReactPlayer from 'react-player';
-import { ArrowLeft, User, Clock, BookOpen, Tag, Star, Award, Share2, Heart, Lock, LogIn } from 'lucide-react';
+import { ArrowLeft, User, Clock, BookOpen, Tag, Star, Award, Share2, Heart } from 'lucide-react';
 import { sampleVideos } from '../data/videos';
-import { useAuth } from '../context/AuthContext';
 
 const VideoPlayerPage = () => {
   const { videoId } = useParams();
-  const navigate = useNavigate();
-  const { user, isAuthenticated, isLoading } = useAuth();
-  const [video, setVideo] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [course, setCourse] = useState(null);
+  const [progress, setProgress] = useState(0);
   const [playedSeconds, setPlayedSeconds] = useState(0);
   const [duration, setDuration] = useState(0);
 
   useEffect(() => {
-    const foundVideo = sampleVideos.find(v => v.id === videoId);
-    setVideo(foundVideo);
+    // Find the video from our sample data
+    const video = sampleVideos.find(v => v.id === videoId);
+    setCourse(video);
+    setIsLoading(false);
   }, [videoId]);
 
-  const handleProgress = (progress) => {
-    setPlayedSeconds(progress.playedSeconds);
+  const formatTime = (seconds) => {
+    if (!seconds) return '0:00';
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
+  const handleProgress = ({ played, playedSeconds: seconds }) => {
+    setProgress(played * 100);
+    setPlayedSeconds(seconds);
   };
 
   const handleDuration = (duration) => {
     setDuration(duration);
   };
 
-  const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
-
-  // Show loading state while checking authentication
+  // Show loading state while finding video data
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white flex items-center justify-center">
         <div className="bg-white/5 backdrop-blur-md rounded-2xl p-8 border border-white/10">
           <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-white/80 text-center">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Show authentication required message if user is not logged in
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
-        <div className="max-w-7xl mx-auto px-4 py-20">
-          <div className="text-center">
-            <div className="bg-white/5 backdrop-blur-md rounded-2xl p-12 border border-white/10 max-w-lg mx-auto">
-              <div className="w-20 h-20 bg-gradient-to-r from-red-500 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Lock size={32} className="text-white" />
-              </div>
-              <h2 className="text-3xl font-bold mb-4 text-white">Access Restricted</h2>
-              <p className="text-white/70 mb-6 leading-relaxed">
-                This video content is available only to registered members of our pathshala. 
-                Please log in to continue your learning journey.
-              </p>
-              {video && (
-                <div className="bg-white/5 rounded-xl p-4 mb-6">
-                  <div className="flex items-center gap-4">
-                    <img 
-                      src={video.thumbnail} 
-                      alt={video.title}
-                      className="w-16 h-12 object-cover rounded-lg"
-                    />
-                    <div className="text-left">
-                      <h3 className="text-white font-semibold text-sm line-clamp-1">{video.title}</h3>
-                      <p className="text-white/60 text-xs">by {video.instructor}</p>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className="text-xs text-white/50">{video.duration}</span>
-                        <span className={`px-2 py-0.5 rounded text-xs ${
-                          video.level === 'Beginner' ? 'bg-green-500/20 text-green-400' :
-                          video.level === 'Intermediate' ? 'bg-orange-500/20 text-orange-400' : 
-                          'bg-red-500/20 text-red-400'
-                        }`}>
-                          {video.level}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <button
-                  onClick={() => navigate('/login')}
-                  className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-teal-500 text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 transform hover:scale-105"
-                >
-                  <LogIn size={20} />
-                  Login to Watch
-                </button>
-                <button
-                  onClick={() => navigate('/register')}
-                  className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 text-white px-6 py-3 rounded-xl font-bold hover:bg-white/20 transition-all duration-300"
-                >
-                  <User size={20} />
-                  Create Account
-                </button>
-              </div>
-              <div className="mt-6 pt-6 border-t border-white/10">
-                <Link 
-                  to="/courses" 
-                  className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 font-medium transition-colors"
-                >
-                  <ArrowLeft size={18} />
-                  Back to Courses
-                </Link>
-              </div>
-            </div>
-          </div>
+          <p className="text-white/80 text-center">Loading video...</p>
         </div>
       </div>
     );
   }
 
   // Show video not found message
-  if (!video) {
+  if (!course) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
         <div className="max-w-7xl mx-auto px-4 py-20">
@@ -137,34 +67,28 @@ const VideoPlayerPage = () => {
     );
   }
 
-  const progressPercentage = duration ? (playedSeconds / duration) * 100 : 0;
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white">
       <div className="max-w-7xl mx-auto px-4 py-6">
-
         <div className="mb-6">
-          <Link to="/courses" className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 font-medium transition-colors group">
+          <Link to="/" className="inline-flex items-center gap-2 text-cyan-400 hover:text-cyan-300 font-medium transition-colors group">
             <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform duration-300" />
-            Back to Courses
+            Back to Home
           </Link>
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
-
           <div className="xl:col-span-3">
             <div className="bg-white/5 backdrop-blur-md rounded-2xl overflow-hidden border border-white/10">
               <div className="relative aspect-video bg-black">
                 <ReactPlayer
-                  url={video.videoUrl}
+                  url={course.videoUrl}
                   width="100%"
                   height="100%"
-                  playing={isPlaying}
+                  playing={false}
                   controls={true}
                   onProgress={handleProgress}
                   onDuration={handleDuration}
-                  onPlay={() => setIsPlaying(true)}
-                  onPause={() => setIsPlaying(false)}
                   config={{
                     file: {
                       attributes: {
@@ -179,13 +103,13 @@ const VideoPlayerPage = () => {
                 <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden mb-4">
                   <div 
                     className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-300" 
-                    style={{ width: `${progressPercentage}%` }}
+                    style={{ width: `${progress}%` }}
                   ></div>
                 </div>
                 <div className="flex justify-between items-center text-sm text-white/80">
                   <span>{formatTime(playedSeconds)} / {formatTime(duration)}</span>
                   <span className="bg-gradient-to-r from-cyan-500 to-blue-500 bg-clip-text text-transparent font-bold">
-                    {Math.round(progressPercentage)}% complete
+                    {Math.round(progress)}% complete
                   </span>
                 </div>
               </div>
@@ -195,21 +119,21 @@ const VideoPlayerPage = () => {
               <div className="flex flex-wrap items-start justify-between gap-4 mb-6">
                 <div className="flex-1 min-w-0">
                   <h1 className="text-3xl lg:text-4xl font-bold text-white mb-4 leading-tight">
-                    {video.title}
+                    {course.title}
                   </h1>
                   
                   <div className="flex flex-wrap items-center gap-4 mb-6">
                     <div className="flex items-center gap-2 text-white/80">
                       <User size={18} />
-                      <span className="font-medium">{video.instructor}</span>
+                      <span className="font-medium">{course.instructor}</span>
                     </div>
                     <div className="flex items-center gap-2 text-white/80">
                       <Clock size={18} />
-                      <span>{video.duration}</span>
+                      <span>{course.duration}</span>
                     </div>
                     <div className="flex items-center gap-2 text-white/80">
                       <Tag size={18} />
-                      <span>{video.category}</span>
+                      <span>{course.category}</span>
                     </div>
                     <div className="flex items-center gap-1 text-yellow-400">
                       <Star size={16} fill="currentColor" />
@@ -219,13 +143,13 @@ const VideoPlayerPage = () => {
 
                   <div className="flex flex-wrap items-center gap-3">
                     <span className={`px-4 py-2 rounded-full text-sm font-bold text-white ${
-                      video.level === 'Beginner' ? 'bg-green-500' :
-                      video.level === 'Intermediate' ? 'bg-orange-500' : 'bg-red-500'
+                      course.level === 'Beginner' ? 'bg-green-500' :
+                      course.level === 'Intermediate' ? 'bg-orange-500' : 'bg-red-500'
                     }`}>
-                      {video.level}
+                      {course.level}
                     </span>
                     <span className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white text-sm font-medium rounded-full">
-                      {video.category}
+                      {course.category}
                     </span>
                     <div className="flex items-center gap-1 text-cyan-400">
                       <Award size={16} />
@@ -249,30 +173,29 @@ const VideoPlayerPage = () => {
                   <BookOpen size={20} className="text-cyan-400" />
                   Course Description
                 </h3>
-                <p className="text-white/80 leading-relaxed mb-6">{video.description}</p>
+                <p className="text-white/80 leading-relaxed mb-6">{course.description}</p>
                 
                 <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                   <Award size={20} className="text-purple-400" />
                   What You'll Learn
                 </h3>
-                <p className="text-white/80 leading-relaxed">{video.summary}</p>
+                <p className="text-white/80 leading-relaxed">{course.summary}</p>
               </div>
             </div>
           </div>
 
           <div className="xl:col-span-1 space-y-6">
-
             <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10">
               <h3 className="text-lg font-bold text-white mb-4">Your Progress</h3>
               <div className="space-y-4">
                 <div className="flex justify-between text-sm">
                   <span className="text-white/80">Completion</span>
-                  <span className="text-cyan-400 font-bold">{Math.round(progressPercentage)}%</span>
+                  <span className="text-cyan-400 font-bold">{Math.round(progress)}%</span>
                 </div>
                 <div className="w-full h-2 bg-white/20 rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-300" 
-                    style={{ width: `${progressPercentage}%` }}
+                    style={{ width: `${progress}%` }}
                   ></div>
                 </div>
                 <div className="flex justify-between text-sm text-white/60">
@@ -283,10 +206,10 @@ const VideoPlayerPage = () => {
             </div>
 
             <div className="bg-white/5 backdrop-blur-md rounded-2xl p-6 border border-white/10">
-              <h3 className="text-lg font-bold text-white mb-4">More from {video.category}</h3>
+              <h3 className="text-lg font-bold text-white mb-4">More from {course.category}</h3>
               <div className="space-y-4">
                 {sampleVideos
-                  .filter(v => v.category === video.category && v.id !== video.id)
+                  .filter(v => v.category === course.category && v.id !== course.id)
                   .slice(0, 4)
                   .map(relatedVideo => (
                     <Link 
