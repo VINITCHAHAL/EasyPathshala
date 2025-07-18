@@ -16,13 +16,42 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
+  const clearAuthState = () => {
+    setUser(null);
+    setIsAuthenticated(false);
+    localStorage.removeItem('token');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+  };
+
   useEffect(() => {
-    const storedUser = authService.getCurrentUserFromStorage();
-    if (storedUser) {
-      setUser(storedUser);
-      setIsAuthenticated(true);
-    }
-    setIsLoading(false);
+    const initializeAuth = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const storedUser = authService.getCurrentUserFromStorage();
+        
+        if (!token || !storedUser) {
+          clearAuthState();
+          return;
+        }
+
+        // Try to refresh the token
+        const refreshResult = await authService.refreshToken();
+        if (!refreshResult) {
+          clearAuthState();
+          return;
+        }
+
+        setUser(storedUser);
+        setIsAuthenticated(true);
+      } catch (error) {
+        clearAuthState();
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeAuth();
   }, []);
 
   const register = async (userData) => {
@@ -45,8 +74,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     await authService.logout();
-    setUser(null);
-    setIsAuthenticated(false);
+    clearAuthState();
   };
 
   return (

@@ -18,12 +18,7 @@ app.use(helmet({
 }));
 
 // CORS configuration
-app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174', 'https://easy-pathshala.vercel.app'],
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use(cors());  // Allow all origins in development
 
 // Static files
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -31,7 +26,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100
+  max: process.env.NODE_ENV === 'production' ? 100 : 1000
 });
 app.use('/api/', limiter);
 
@@ -59,28 +54,6 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-app.get('/api/db-status', (req, res) => {
-  const mongoose = require('mongoose');
-  const connectionState = mongoose.connection.readyState;
-  const states = {
-    0: 'disconnected',
-    1: 'connected',
-    2: 'connecting',
-    3: 'disconnecting'
-  };
-
-  res.status(200).json({
-    success: true,
-    database: {
-      status: states[connectionState],
-      host: mongoose.connection.host,
-      name: mongoose.connection.name,
-      readyState: connectionState
-    },
-    timestamp: new Date().toISOString()
-  });
-});
-
 // Error handlers - must be last
 app.use((req, res) => {
   res.status(404).json({
@@ -103,5 +76,4 @@ app.listen(PORT, () => {
   console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`🔗 API Base URL: http://localhost:${PORT}/api`);
   console.log(`💻 Client URL: ${process.env.CLIENT_URL || 'http://localhost:5173'}`);
-  console.log(`📁 Static files served from: http://localhost:${PORT}/uploads`);
 });

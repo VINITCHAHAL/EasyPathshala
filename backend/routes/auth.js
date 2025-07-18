@@ -44,8 +44,7 @@ router.post('/register', [
 
     if (existingUser) {
       let message = 'User already exists with this ';
-      if (existingUser.email === email) message += 'email';
-      else if (existingUser.username === username) message += 'username';
+      message += existingUser.email === email ? 'email' : 'username';
       
       return res.status(400).json({
         success: false,
@@ -66,7 +65,7 @@ router.post('/register', [
     const userResponse = user.toObject();
     delete userResponse.password;
 
-    res.status(201).json({
+    return res.status(201).json({
       success: true,
       message: 'Registration successful',
       data: {
@@ -76,7 +75,8 @@ router.post('/register', [
       }
     });
   } catch (error) {
-    res.status(500).json({
+    console.error('Registration Error:', error);
+    return res.status(500).json({
       success: false,
       message: 'Registration failed',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
@@ -84,7 +84,6 @@ router.post('/register', [
   }
 });
 
-// Login Route
 router.post('/login', [
   body('email')
     .optional()
@@ -162,7 +161,6 @@ router.post('/login', [
   }
 });
 
-// Logout Route
 router.post('/logout', protect, async (req, res) => {
   try {
     res.json({
@@ -178,7 +176,6 @@ router.post('/logout', protect, async (req, res) => {
   }
 });
 
-// Get Current User Route
 router.get('/me', protect, async (req, res) => {
   try {
     const user = await User.findById(req.user._id)
@@ -198,7 +195,6 @@ router.get('/me', protect, async (req, res) => {
   }
 });
 
-// Refresh Token Route
 router.post('/refresh', [
   body('refreshToken')
     .notEmpty()
