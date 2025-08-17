@@ -40,7 +40,7 @@ const AboutPage = () => {
       bio: 'Web Developer passionate about making traditional learning accessible to everyone.',
     },
     {
-      name: 'Acharya Sharma',
+      name: 'Talib Mir',
       role: 'Chief Learning Officer',
       image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face',
       bio: 'Expert in traditional pedagogy and modern educational technology integration.',
