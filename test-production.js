@@ -1,6 +1,6 @@
 // Production Health Check Script
 const testProduction = async () => {
-  const PRODUCTION_API = 'https://easypathshala-api.onrender.com'; // Your actual Render URL
+  const PRODUCTION_API = 'https://easypathshala.onrender.com'; // Replace with your actual Render URL
   
   console.log('🔍 Testing Production Setup...\n');
   
