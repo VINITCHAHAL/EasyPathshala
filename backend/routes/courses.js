@@ -41,7 +41,6 @@ router.get('/', [
       isFree
     } = req.query;
 
-    // Build filter object
     const filter = { isPublished: true, isActive: true };
 
     if (category) filter.category = category;
@@ -54,31 +53,25 @@ router.get('/', [
       if (maxPrice) filter.price.$lte = parseFloat(maxPrice);
     }
 
-    // Build search query
     if (search) {
       filter.$text = { $search: search };
     }
 
-    // Build sort object
     const sort = {};
     sort[sortBy] = sortOrder === 'desc' ? -1 : 1;
 
-    // Calculate pagination
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
-    // Execute query
     const courses = await Course.find(filter)
       .populate('instructor', 'fullName avatar')
-      .select('-videos') // Don't include video URLs in list view
+      .select('-videos') 
       .sort(sort)
       .skip(skip)
       .limit(parseInt(limit));
 
-    // Get total count for pagination
     const totalCourses = await Course.countDocuments(filter);
     const totalPages = Math.ceil(totalCourses / parseInt(limit));
 
-    // Add enrollment status for authenticated users
     if (req.user) {
       const userEnrollments = await Enrollment.find({
         user: req.user._id,
@@ -125,7 +118,6 @@ router.get('/:identifier', optionalAuth, async (req, res) => {
   try {
     const { identifier } = req.params;
 
-    // Find by ID or slug
     const isObjectId = identifier.match(/^[0-9a-fA-F]{24}$/);
     const filter = isObjectId ? { _id: identifier } : { slug: identifier };
     filter.isPublished = true;
@@ -141,7 +133,6 @@ router.get('/:identifier', optionalAuth, async (req, res) => {
       });
     }
 
-    // Check if user is enrolled (for authenticated users)
     let enrollmentData = null;
     if (req.user) {
       const enrollment = await Enrollment.findOne({
@@ -161,7 +152,6 @@ router.get('/:identifier', optionalAuth, async (req, res) => {
       }
     }
 
-    // Filter videos based on enrollment status
     let courseResponse = course.toObject();
     res.json({
       success: true,
@@ -257,7 +247,6 @@ router.put('/:id', [
       });
     }
 
-    // Check if user is course instructor or admin
     if (course.instructor.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
@@ -300,7 +289,6 @@ router.delete('/:id', protect, authorize('instructor', 'admin'), async (req, res
       });
     }
 
-    // Check if user is course instructor or admin
     if (course.instructor.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
       return res.status(403).json({
         success: false,
@@ -308,7 +296,6 @@ router.delete('/:id', protect, authorize('instructor', 'admin'), async (req, res
       });
     }
 
-    // Soft delete - just mark as inactive
     course.isActive = false;
     await course.save();
 
@@ -340,7 +327,6 @@ router.post('/:id/enroll', protect, async (req, res) => {
       });
     }
 
-    // Check if already enrolled
     const existingEnrollment = await Enrollment.findOne({
       user: req.user._id,
       course: course._id
@@ -353,7 +339,6 @@ router.post('/:id/enroll', protect, async (req, res) => {
       });
     }
 
-    // Create enrollment
     const enrollment = await Enrollment.create({
       user: req.user._id,
       course: course._id,
