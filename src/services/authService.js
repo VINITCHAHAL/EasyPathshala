@@ -1,6 +1,6 @@
 import config from '../config/config.js';
 
-const API_URL = '/api/auth';  // Using relative URL for development proxy
+const API_URL = `${config.apiBaseUrl}/api/auth`;
 
 class AuthService {
   async register(userData) {
