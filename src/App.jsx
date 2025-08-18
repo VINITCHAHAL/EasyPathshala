@@ -8,6 +8,7 @@ import AboutPage from './pages/AboutPage';
 import VideoPlayerPage from './pages/VideoPlayerPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import MonitoringDashboard from './pages/MonitoringDashboard';
 import './App.css';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
               <Route path="/video/:videoId" element={<VideoPlayerPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/monitoring" element={<MonitoringDashboard />} />
             </Routes>
           </main>
         </div>
