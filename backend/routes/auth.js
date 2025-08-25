@@ -6,7 +6,6 @@ const { generateToken, generateRefreshToken, protect } = require('../middleware/
 
 const router = express.Router();
 
-// Register Route
 router.post('/register', [
   body('fullName')
     .trim()
