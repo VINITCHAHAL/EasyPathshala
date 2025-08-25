@@ -35,8 +35,7 @@ const ContactSection = () => {
                   <p className="text-white/70 mb-2 text-sm sm:text-base">Send us your questions anytime</p>
                   <a 
                     href="mailto:support@easypathshala.com" 
-                    className="text-emerald-400 hover:text-emerald-300 transition-colors text-sm sm:text-base break-all"
-                  >
+                    className="text-emerald-400 hover:text-emerald-300 transition-colors text-sm sm:text-base break-all">
                     support@easypathshala.com
                   </a>
                 </div>
@@ -55,9 +54,8 @@ const ContactSection = () => {
                   <p className="text-white/70 mb-2 text-sm sm:text-base">Available Mon-Fri, 9am-6pm IST</p>
                   <a 
                     href="tel:+911234567890" 
-                    className="text-teal-400 hover:text-teal-300 transition-colors text-sm sm:text-base"
-                  >
-                    +91 12345 67890
+                    className="text-teal-400 hover:text-teal-300 transition-colors text-sm sm:text-base">
+                    +91 9797632997
                   </a>
                 </div>
               </div>
@@ -75,8 +73,8 @@ const ContactSection = () => {
                   <p className="text-white/70 mb-2 text-sm sm:text-base">Come say hello at our office</p>
                   <address className="text-cyan-400 not-italic text-sm sm:text-base">
                     EasyPathshala HQ<br />
-                    123 Learning Street<br />
-                    Knowledge City, India 110001
+                    Jammu and Kashmir<br />
+                    India
                   </address>
                 </div>
               </div>
@@ -143,13 +141,15 @@ const ContactSection = () => {
                 />
               </div>
               
-              <button
-                type="submit"
-                className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-bold text-base sm:text-lg hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 mt-auto"
-              >
-                <Send size={18} className="sm:w-5 sm:h-5" />
-                Send Message
-              </button>
+              <div>
+                <button
+                  type="submit"
+                  className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white py-3 sm:py-4 px-4 sm:px-6 rounded-xl font-bold text-base sm:text-lg hover:shadow-lg hover:shadow-emerald-500/25 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2 mt-[30px]">
+                  <Send size={18} className="sm:w-5 sm:h-5" />
+                  Send Message
+                </button>
+              </div>
+
             </form>
           </div>
         </div>
