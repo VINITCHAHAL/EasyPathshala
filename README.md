@@ -175,7 +175,6 @@ The application is configured for seamless Vercel deployment with serverless fun
    JWT_REFRESH_SECRET=your_refresh_token_secret
    CLIENT_URL=https://your-app-name.vercel.app
    ```
-
 2. **Deploy to Vercel**
    ```bash
    npm install -g vercel
